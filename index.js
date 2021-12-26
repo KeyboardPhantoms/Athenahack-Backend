@@ -61,7 +61,7 @@ app.post('/api/login', async (req, res) => {
   }
 });
 
-app.get('/api/quote', async (req, res) => {
+app.get('/api/book', async (req, res) => {
   const token = req.headers['x-access-token'];
 
   try {
@@ -69,21 +69,23 @@ app.get('/api/quote', async (req, res) => {
     const email = decoded.email;
     const user = await User.findOne({ email: email });
 
-    return res.json({ status: 'ok', quote: user.quote });
+    return res.json({ status: 'ok', book: user.bookList });
   } catch (error) {
     console.log(error);
     res.json({ status: 'error', error: 'invalid token' });
   }
 });
 
-app.post('/api/quote', async (req, res) => {
+app.post('/api/book', async (req, res) => {
   const token = req.headers['x-access-token'];
 
   try {
     const decoded = jwt.verify(token, 'secret123');
     const email = decoded.email;
-    await User.updateOne({ email: email }, { $set: { quote: req.body.quote } });
-
+    await User.updateOne(
+      { email: email },
+      { bookList: [...bookList, req.body.item] }
+    );
     return res.json({ status: 'ok' });
   } catch (error) {
     console.log(error);
